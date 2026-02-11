@@ -244,7 +244,7 @@ The generalized mod `N` algorithm follows the original, with couple of changes
 1. Sum all resulting numbers.
 1. The number corresponding to check character is finally computed as `(N - (s mod N)) mod N`
    where `s` is the sum computed on previous step.
-1. *(New)** The actual character can be obtained by inverting the mapping from the first step.
+1. **(New)** The actual character can be obtained by inverting the mapping from the first step.
 
 ### Task
 
