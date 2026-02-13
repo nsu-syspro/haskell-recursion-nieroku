@@ -1,10 +1,12 @@
 {-# OPTIONS_GHC -Wall #-}
+
 -- The above pragma enables all warnings
 
 module Task1 where
 
 -- Explicit import of Prelude to hide functions
 -- that are not supposed to be used in this assignment
+
 import Prelude hiding (filter, foldl, foldr, head, init, last, length, map, read, reverse, show, sum, tail)
 
 -----------------------------------
@@ -22,7 +24,10 @@ import Prelude hiding (filter, foldl, foldr, head, init, last, length, map, read
 -- False
 
 validate :: Integer -> Bool
-validate = error "TODO: define validate"
+validate n = luhn digits == checkDigit
+  where
+    checkDigit = fromInteger $ n `rem` 10
+    digits = toDigits $ n `div` 10
 
 -----------------------------------
 --
@@ -34,7 +39,9 @@ validate = error "TODO: define validate"
 -- 1
 
 luhn :: [Int] -> Int
-luhn = error "TODO: define luhn"
+luhn digits = (10 - (luhnSum `rem` 10)) `rem` 10
+  where
+    luhnSum = (sum . (map normalize) . doubleEveryOther . reverse) digits
 
 -----------------------------------
 --
@@ -51,7 +58,10 @@ luhn = error "TODO: define luhn"
 -- []
 
 toDigits :: Integer -> [Int]
-toDigits = error "TODO: define toDigits"
+toDigits n
+  | n <= 0 = []
+  | n > 10 = (toDigits $ n `div` 10) ++ [fromInteger $ n `rem` 10]
+  | otherwise = [fromInteger n]
 
 -----------------------------------
 --
@@ -65,7 +75,10 @@ toDigits = error "TODO: define toDigits"
 -- [6,5,4,3]
 
 reverse :: [a] -> [a]
-reverse = error "TODO: define reverse"
+reverse = reverse' []
+  where
+    reverse' to [] = to
+    reverse' to (e : from) = reverse' (e : to) from
 
 -----------------------------------
 --
@@ -77,7 +90,9 @@ reverse = error "TODO: define reverse"
 -- [12,5,8,3]
 
 doubleEveryOther :: [Int] -> [Int]
-doubleEveryOther = error "TODO: define doubleEveryOther"
+doubleEveryOther [] = []
+doubleEveryOther [x] = [x * 2]
+doubleEveryOther (x : y : xs) = (x * 2) : y : doubleEveryOther xs
 
 -----------------------------------
 --
@@ -94,7 +109,9 @@ doubleEveryOther = error "TODO: define doubleEveryOther"
 -- 1
 
 normalize :: Int -> Int
-normalize = error "TODO: define normalize"
+normalize n
+  | n >= 10 = n - 9
+  | otherwise = n
 
 -----------------------------------
 --
@@ -107,7 +124,8 @@ normalize = error "TODO: define normalize"
 -- [2,4,6,8]
 
 map :: (a -> b) -> [a] -> [b]
-map = error "TODO: define map"
+map _ [] = []
+map f (x : xs) = f x : map f xs
 
 -----------------------------------
 --
@@ -121,4 +139,7 @@ map = error "TODO: define map"
 -- 0
 
 sum :: [Int] -> Int
-sum = error "TODO: define sum"
+sum = sum' 0
+  where
+    sum' acc [] = acc
+    sum' acc (x : xs) = sum' (acc + x) xs

@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
+
 -- The above pragma enables all warnings
 -- (except for unused imports from Task1)
 
@@ -7,12 +8,14 @@ module Task2 where
 
 -- Explicit import of Prelude to hide functions
 -- that are not supposed to be used in this assignment
-import Prelude hiding (filter, foldl, foldr, head, init, last, length, map, read, reverse, show, sum, tail)
 
 -- You can reuse already implemented functions from Task1
 -- by listing them in this import clause
 -- NOTE: only listed functions are imported, everything else remains hidden
-import Task1 (map, reverse, sum)
+
+import Data.Char (ord)
+import Task1 (doubleEveryOther, map, reverse, sum, toDigits)
+import Prelude hiding (filter, foldl, foldr, head, init, last, length, map, read, reverse, show, sum, tail)
 
 -----------------------------------
 --
@@ -25,7 +28,13 @@ import Task1 (map, reverse, sum)
 -- 1
 
 luhnModN :: Int -> (a -> Int) -> [a] -> Int
-luhnModN = error "TODO: define luhnModN"
+luhnModN n charToDigit chars = (n - (luhnSum `rem` n)) `rem` n
+  where
+    digits = map charToDigit chars
+    luhnSum = (sum . (map normalize) . doubleEveryOther . reverse) digits
+    normalize k
+      | k >= n = k - (n - 1)
+      | otherwise = k
 
 -----------------------------------
 --
@@ -37,7 +46,7 @@ luhnModN = error "TODO: define luhnModN"
 -- 1
 
 luhnDec :: [Int] -> Int
-luhnDec = error "TODO: define luhnDec"
+luhnDec = luhnModN 10 id
 
 -----------------------------------
 --
@@ -49,7 +58,7 @@ luhnDec = error "TODO: define luhnDec"
 -- 15
 
 luhnHex :: [Char] -> Int
-luhnHex = error "TODO: define luhnHex"
+luhnHex = luhnModN 16 digitToInt
 
 -----------------------------------
 --
@@ -65,7 +74,11 @@ luhnHex = error "TODO: define luhnHex"
 -- [10,11,12,13,14,15]
 
 digitToInt :: Char -> Int
-digitToInt = error "TODO: define digitToInt"
+digitToInt digit
+  | '0' <= digit && digit <= '9' = ord digit - ord '0'
+  | 'a' <= digit && digit <= 'f' = 10 + ord digit - ord 'a'
+  | 'A' <= digit && digit <= 'F' = 10 + ord digit - ord 'A'
+  | otherwise = undefined
 
 -----------------------------------
 --
@@ -82,7 +95,10 @@ digitToInt = error "TODO: define digitToInt"
 -- False
 
 validateDec :: Integer -> Bool
-validateDec = error "TODO: define validateDec"
+validateDec n = luhnDec digits == checkDigit
+  where
+    checkDigit = fromInteger $ n `rem` 10
+    digits = toDigits $ n `div` 10
 
 -----------------------------------
 --
@@ -99,4 +115,16 @@ validateDec = error "TODO: define validateDec"
 -- False
 
 validateHex :: [Char] -> Bool
-validateHex = error "TODO: define validateHex"
+validateHex digits = luhnHex (init digits) == checkDigit
+  where
+    checkDigit = digitToInt $ last digits
+
+init :: [a] -> [a]
+init [] = undefined
+init [_] = []
+init (x : xs) = x : init xs
+
+last :: [a] -> a
+last [] = undefined
+last [x] = x
+last (_ : xs) = last xs
